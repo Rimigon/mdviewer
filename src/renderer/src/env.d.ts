@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
+import type { Api } from '../../preload/index'
 
-interface Window {
-  api: {
-    ping: () => string
+declare global {
+  interface Window {
+    api: Api
   }
 }
