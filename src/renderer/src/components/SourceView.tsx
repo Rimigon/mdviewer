@@ -1,11 +1,11 @@
 interface Props {
-  source: string
+	source: string;
 }
 
 export default function SourceView({ source }: Props) {
-  return (
-    <pre className="source-view">
-      <code>{source}</code>
-    </pre>
-  )
+	return (
+		<pre className="source-view">
+			<code>{source}</code>
+		</pre>
+	);
 }

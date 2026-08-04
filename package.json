@@ -7,15 +7,32 @@
   "build": {
     "appId": "com.mdviewer.app",
     "productName": "MD Viewer",
-    "directories": { "output": "dist" },
-    "files": ["out/**"],
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**"
+    ],
+    "icon": "build/icon.png",
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico",
       "fileAssociations": [
-        { "ext": "md", "name": "Markdown Document", "description": "Markdown файл", "role": "Editor" }
+        {
+          "ext": "md",
+          "name": "Markdown Document",
+          "description": "Markdown файл",
+          "role": "Editor",
+          "icon": "build/icon.ico"
+        }
       ]
     },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "scripts": {
     "dev": "electron-vite dev",
@@ -26,7 +43,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "register-assoc": "node scripts/register-assoc.mjs",
-    "unregister-assoc": "node scripts/unregister-assoc.mjs"
+    "unregister-assoc": "node scripts/unregister-assoc.mjs",
+    "build-icon": "node scripts/build-icon.mjs"
   },
   "dependencies": {
     "github-markdown-css": "^5.9.0",
@@ -58,6 +76,8 @@
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "jsdom": "^30.0.1",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.3",
     "typescript": "^7.0.2",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"
