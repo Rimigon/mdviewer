@@ -1,0 +1,16 @@
+:root {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #ffffff;
+  min-height: 100vh;
+}
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
