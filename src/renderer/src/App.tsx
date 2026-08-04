@@ -4,6 +4,7 @@ import { applyTheme } from './lib/theme'
 import type { TocEntry } from './lib/toc'
 import MarkdownView from './components/MarkdownView'
 import TocSidebar from './components/TocSidebar'
+import FileTree from './components/FileTree'
 
 export default function App() {
   const [source, setSource] = useState('')
@@ -14,6 +15,7 @@ export default function App() {
   const [renderedHtml, setRenderedHtml] = useState('')
   const [toc, setToc] = useState<TocEntry[]>([])
   const [tocOpen, setTocOpen] = useState(true)
+  const [root, setRoot] = useState<string | null>(null)
 
   async function loadFile(path: string): Promise<void> {
     try {
@@ -24,6 +26,34 @@ export default function App() {
       setStatus(path)
     } catch (err) {
       setStatus(`Ошибка чтения: ${String(err)}`)
+    }
+  }
+
+  async function handleOpenFile(): Promise<void> {
+    const p = await window.api.openFile()
+    if (p) await loadFile(p)
+  }
+
+  async function handleOpenFolder(): Promise<void> {
+    const p = await window.api.openFolder()
+    if (p) {
+      setRoot(p)
+      setStatus(p)
+    }
+  }
+
+  async function handleDrop(e: React.DragEvent): Promise<void> {
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (!file) return
+    const path = (file as File & { path?: string }).path
+    if (!path) return
+    const st = await window.api.stat(path)
+    if (st.isDir) {
+      setRoot(path)
+      setStatus(path)
+    } else if (st.isFile) {
+      await loadFile(path)
     }
   }
 
@@ -53,13 +83,16 @@ export default function App() {
   }, [])
 
   return (
-    <div className="app">
+    <div className="app" onDragOver={(e) => e.preventDefault()} onDrop={(e) => void handleDrop(e)}>
       <header className="toolbar">
+        <button onClick={() => void handleOpenFile()}>Открыть файл</button>
+        <button onClick={() => void handleOpenFolder()}>Папка</button>
         <span className="path">{filePath}</span>
         <button onClick={() => setTocOpen((v) => !v)}>Оглавление</button>
         <button onClick={() => setDark((d) => !d)}>{dark ? '☀️ Светлая' : '🌙 Тёмная'}</button>
       </header>
       <main className="content">
+        {root && <FileTree root={root} onOpenFile={loadFile} />}
         <div className="content-inner">
           <MarkdownView html={renderedHtml} baseDir={baseDir} dark={dark} onToc={setToc} />
           {tocOpen && <TocSidebar entries={toc} onNavigate={scrollToId} />}
