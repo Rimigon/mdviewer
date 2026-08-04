@@ -9,7 +9,12 @@ const api = {
   stat: (path: string): Promise<PathStat> => ipcRenderer.invoke('fs:stat', path),
   resolveImage: (baseDir: string, src: string): Promise<string | null> =>
     ipcRenderer.invoke('img:resolve', baseDir, src),
-  startFile: (): Promise<string | null> => ipcRenderer.invoke('app:startFile')
+  startFile: (): Promise<string | null> => ipcRenderer.invoke('app:startFile'),
+  onOpenPath: (cb: (path: string) => void): (() => void) => {
+    const listener = (_e: Electron.IpcRendererEvent, p: string): void => cb(p)
+    ipcRenderer.on('app:open-path', listener)
+    return () => ipcRenderer.removeListener('app:open-path', listener)
+  }
 }
 
 contextBridge.exposeInMainWorld('api', api)

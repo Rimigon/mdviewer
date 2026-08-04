@@ -93,6 +93,20 @@ function findMdInArgv(argv: string[]): string | null {
   return argv.find((a) => /\.(md|markdown|mdown|mkd)$/i.test(a) && !a.startsWith('-')) ?? null
 }
 
+// Single-instance: повторный запуск фокусирует существующее окно и открывает файл
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+} else {
+  app.on('second-instance', (_e, argv) => {
+    const f = findMdInArgv(argv)
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+      if (f) mainWindow.webContents.send('app:open-path', f)
+    }
+  })
+}
+
 app.whenReady().then(() => {
   registerIpc()
   createWindow()

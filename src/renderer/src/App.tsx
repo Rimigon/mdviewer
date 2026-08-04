@@ -97,6 +97,10 @@ export default function App() {
   }, [source])
 
   useEffect(() => {
+    return window.api.onOpenPath((p) => void loadFile(p))
+  }, [])
+
+  useEffect(() => {
     window.api.startFile().then((p) => {
       if (p) return loadFile(p)
     })

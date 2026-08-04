@@ -4,6 +4,19 @@
   "description": "Красивый просмотрщик Markdown в стиле GitHub",
   "main": "./out/main/index.js",
   "private": true,
+  "build": {
+    "appId": "com.mdviewer.app",
+    "productName": "MD Viewer",
+    "directories": { "output": "dist" },
+    "files": ["out/**"],
+    "win": {
+      "target": ["nsis"],
+      "fileAssociations": [
+        { "ext": "md", "name": "Markdown Document", "description": "Markdown файл", "role": "Editor" }
+      ]
+    },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
