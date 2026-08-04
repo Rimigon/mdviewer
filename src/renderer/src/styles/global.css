@@ -39,6 +39,63 @@ html.dark .toolbar {
   overflow: auto;
   padding: 24px;
 }
+.content-inner {
+  display: flex;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.toc {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  width: 220px;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.toc-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1f2328;
+}
+html.dark .toc-title {
+  color: #e6edf3;
+}
+.toc-link {
+  display: block;
+  color: #57606a;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toc-link:hover {
+  background: rgba(175, 184, 193, 0.2);
+  color: #0969da;
+}
+html.dark .toc-link {
+  color: #8b949e;
+}
+html.dark .toc-link:hover {
+  color: #58a6ff;
+  background: rgba(110, 118, 129, 0.2);
+}
+.toc-empty {
+  color: #57606a;
+  font-size: 12px;
+}
+.mermaid-error {
+  padding: 12px;
+  border: 1px solid #d1242f;
+  border-radius: 6px;
+  color: #d1242f;
+  background: #fff5f5;
+  font-size: 13px;
+}
 .status {
   padding: 4px 12px;
   font-size: 12px;
