@@ -6,6 +6,7 @@ import MarkdownView from './components/MarkdownView'
 import TocSidebar from './components/TocSidebar'
 import FileTree from './components/FileTree'
 import SearchBar from './components/SearchBar'
+import SourceView from './components/SourceView'
 
 export default function App() {
   const [source, setSource] = useState('')
@@ -19,6 +20,7 @@ export default function App() {
   const [root, setRoot] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [searchCount, setSearchCount] = useState(0)
+  const [mode, setMode] = useState<'render' | 'source'>('render')
 
   async function loadFile(path: string): Promise<void> {
     try {
@@ -65,6 +67,21 @@ export default function App() {
   }
 
   useEffect(() => {
+    function onKey(e: KeyboardEvent): void {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
+        e.preventDefault()
+        void handleOpenFile()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
+        e.preventDefault()
+        void handleOpenFolder()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  useEffect(() => {
     applyTheme(dark)
     localStorage.setItem('theme', dark ? 'dark' : 'light')
   }, [dark])
@@ -92,20 +109,27 @@ export default function App() {
         <button onClick={() => void handleOpenFolder()}>Папка</button>
         <span className="path">{filePath}</span>
         <SearchBar query={query} onChange={setQuery} count={searchCount} />
+        <button onClick={() => setMode((m) => (m === 'render' ? 'source' : 'render'))}>
+          {mode === 'render' ? 'Исходник' : 'Рендер'}
+        </button>
         <button onClick={() => setTocOpen((v) => !v)}>Оглавление</button>
         <button onClick={() => setDark((d) => !d)}>{dark ? '☀️ Светлая' : '🌙 Тёмная'}</button>
       </header>
       <main className="content">
         {root && <FileTree root={root} onOpenFile={loadFile} />}
         <div className="content-inner">
-          <MarkdownView
-            html={renderedHtml}
-            baseDir={baseDir}
-            dark={dark}
-            query={query}
-            onToc={setToc}
-            onSearchCount={setSearchCount}
-          />
+          {mode === 'render' ? (
+            <MarkdownView
+              html={renderedHtml}
+              baseDir={baseDir}
+              dark={dark}
+              query={query}
+              onToc={setToc}
+              onSearchCount={setSearchCount}
+            />
+          ) : (
+            <SourceView source={source} />
+          )}
           {tocOpen && <TocSidebar entries={toc} onNavigate={scrollToId} />}
         </div>
       </main>
