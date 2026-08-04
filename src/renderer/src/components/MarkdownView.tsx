@@ -2,21 +2,26 @@ import { useEffect, useRef } from 'react'
 import { resolveImageSrcs } from '../lib/resolveImages'
 import { renderMermaid } from '../lib/mermaid'
 import { extractToc, type TocEntry } from '../lib/toc'
+import { highlightMatches } from '../lib/search'
 
 interface Props {
   html: string
   baseDir: string
   dark: boolean
+  query: string
   onRendered?: (el: HTMLElement) => void
   onToc?: (entries: TocEntry[]) => void
+  onSearchCount?: (n: number) => void
 }
 
-export default function MarkdownView({ html, baseDir, dark, onRendered, onToc }: Props) {
+export default function MarkdownView({ html, baseDir, dark, query, onRendered, onToc, onSearchCount }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const onRenderedRef = useRef(onRendered)
   const onTocRef = useRef(onToc)
+  const onSearchCountRef = useRef(onSearchCount)
   onRenderedRef.current = onRendered
   onTocRef.current = onToc
+  onSearchCountRef.current = onSearchCount
 
   useEffect(() => {
     let cancelled = false
@@ -31,12 +36,13 @@ export default function MarkdownView({ html, baseDir, dark, onRendered, onToc }:
         if (!cancelled) {
           onRenderedRef.current?.(el)
           onTocRef.current?.(extractToc(el))
+          onSearchCountRef.current?.(highlightMatches(el, query))
         }
       })
     return () => {
       cancelled = true
     }
-  }, [html, baseDir, dark])
+  }, [html, baseDir, dark, query])
 
   return <div className="markdown-body" ref={ref} />
 }

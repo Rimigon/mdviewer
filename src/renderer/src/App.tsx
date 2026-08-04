@@ -5,6 +5,7 @@ import type { TocEntry } from './lib/toc'
 import MarkdownView from './components/MarkdownView'
 import TocSidebar from './components/TocSidebar'
 import FileTree from './components/FileTree'
+import SearchBar from './components/SearchBar'
 
 export default function App() {
   const [source, setSource] = useState('')
@@ -16,6 +17,8 @@ export default function App() {
   const [toc, setToc] = useState<TocEntry[]>([])
   const [tocOpen, setTocOpen] = useState(true)
   const [root, setRoot] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const [searchCount, setSearchCount] = useState(0)
 
   async function loadFile(path: string): Promise<void> {
     try {
@@ -88,13 +91,21 @@ export default function App() {
         <button onClick={() => void handleOpenFile()}>Открыть файл</button>
         <button onClick={() => void handleOpenFolder()}>Папка</button>
         <span className="path">{filePath}</span>
+        <SearchBar query={query} onChange={setQuery} count={searchCount} />
         <button onClick={() => setTocOpen((v) => !v)}>Оглавление</button>
         <button onClick={() => setDark((d) => !d)}>{dark ? '☀️ Светлая' : '🌙 Тёмная'}</button>
       </header>
       <main className="content">
         {root && <FileTree root={root} onOpenFile={loadFile} />}
         <div className="content-inner">
-          <MarkdownView html={renderedHtml} baseDir={baseDir} dark={dark} onToc={setToc} />
+          <MarkdownView
+            html={renderedHtml}
+            baseDir={baseDir}
+            dark={dark}
+            query={query}
+            onToc={setToc}
+            onSearchCount={setSearchCount}
+          />
           {tocOpen && <TocSidebar entries={toc} onNavigate={scrollToId} />}
         </div>
       </main>
