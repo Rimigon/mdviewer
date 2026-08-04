@@ -1,7 +1,14 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu } from "electron";
+import {
+	app,
+	BrowserWindow,
+	dialog,
+	ipcMain,
+	Menu,
+	shell,
+} from "electron";
 import { join, dirname, resolve } from "node:path";
 import { readFile, readdir, stat as fsStat } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import type { DirEntry, FileContent, PathStat } from "../shared/types";
 
 let mainWindow: BrowserWindow | null = null;
@@ -21,6 +28,21 @@ function createWindow(): void {
 		},
 	});
 	mainWindow = win;
+
+	// Внешние ссылки никогда не открываются внутри окна приложения
+	win.webContents.setWindowOpenHandler(({ url }) => {
+		void shell.openExternal(url);
+		return { action: "deny" };
+	});
+	win.webContents.on("will-navigate", (event, url) => {
+		const current = win.webContents.getURL();
+		if (url === current) return; // перезагрузка / HMR
+		if (/^(https?:|mailto:|tel:|file:)/i.test(url)) {
+			event.preventDefault();
+			void shell.openExternal(url);
+		}
+	});
+
 	if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
 		win.loadURL(process.env["ELECTRON_RENDERER_URL"]);
 	} else {
@@ -83,6 +105,27 @@ function registerIpc(): void {
 				return pathToFileURL(full).href;
 			} catch {
 				return null;
+			}
+		},
+	);
+
+	ipcMain.handle(
+		"app:openLink",
+		async (_e, href: string, baseDir: string): Promise<void> => {
+			// http/https/mailto/tel — в браузер по умолчанию
+			if (/^(https?:|mailto:|tel:)/i.test(href)) {
+				await shell.openExternal(href);
+				return;
+			}
+			// относительная ссылка — резолвим от папки документа и открываем
+			// обработчиком по умолчанию (для .md это может быть MD Viewer)
+			const target = href.startsWith("file:")
+				? fileURLToPath(href)
+				: resolve(baseDir, decodeURIComponent(href));
+			try {
+				await shell.openExternal(pathToFileURL(target).href);
+			} catch {
+				// ссылка ведёт в никуда — молча игнорируем
 			}
 		},
 	);

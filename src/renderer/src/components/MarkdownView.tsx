@@ -3,6 +3,7 @@ import { resolveImageSrcs } from "../lib/resolveImages";
 import { renderMermaid } from "../lib/mermaid";
 import { extractToc, type TocEntry } from "../lib/toc";
 import { highlightMatches } from "../lib/search";
+import { extractExternalHref } from "../lib/links";
 
 interface Props {
 	html: string;
@@ -31,6 +32,17 @@ export default function MarkdownView({
 	onTocRef.current = onToc;
 	onSearchCountRef.current = onSearchCount;
 
+	function handleClick(e: React.MouseEvent<HTMLDivElement>): void {
+		const target = e.target as HTMLElement;
+		const anchor = target.closest("a");
+		if (!anchor) return;
+		const href = extractExternalHref(anchor);
+		if (!href) return;
+		// Внешние ссылки открываются вне приложения (браузер по умолчанию и т.п.)
+		e.preventDefault();
+		void window.api.openLink(href, baseDir);
+	}
+
 	useEffect(() => {
 		let cancelled = false;
 		const el = ref.current;
@@ -51,5 +63,7 @@ export default function MarkdownView({
 		};
 	}, [html, baseDir, dark, query]);
 
-	return <div className="markdown-body" ref={ref} />;
+	return (
+		<div className="markdown-body" ref={ref} onClick={handleClick} />
+	);
 }

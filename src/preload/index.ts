@@ -14,12 +14,16 @@ const api = {
 	resolveImage: (baseDir: string, src: string): Promise<string | null> =>
 		ipcRenderer.invoke("img:resolve", baseDir, src),
 	startFile: (): Promise<string | null> => ipcRenderer.invoke("app:startFile"),
+	openLink: (href: string, baseDir: string): Promise<void> =>
+		ipcRenderer.invoke("app:openLink", href, baseDir),
 	onOpenPath: (cb: (path: string) => void): (() => void) => {
 		const listener = (_e: Electron.IpcRendererEvent, p: string): void => cb(p);
 		ipcRenderer.on("app:open-path", listener);
 		return () => ipcRenderer.removeListener("app:open-path", listener);
 	},
-	onMenuAction: (cb: (action: "open-file" | "open-folder") => void): (() => void) => {
+	onMenuAction: (
+		cb: (action: "open-file" | "open-folder") => void,
+	): (() => void) => {
 		const listener = (_e: Electron.IpcRendererEvent, channel: string): void => {
 			if (channel === "menu:open-file") cb("open-file");
 			else if (channel === "menu:open-folder") cb("open-folder");
