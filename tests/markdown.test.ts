@@ -21,8 +21,15 @@ describe('renderMarkdown', () => {
 
   it('подсвечивает код через highlight.js', async () => {
     const html = await renderMarkdown('```js\nconst a = 1\n```')
-    expect(html).toContain('hljs')
+    expect(html).toContain('class="hljs')
     expect(html).toContain('language-js')
+    expect(html).toContain('hljs-keyword')
+  })
+
+  it('добавляет якорь с классом anchor к заголовку', async () => {
+    const html = await renderMarkdown('## Привет мир')
+    expect(html).toContain('<a class="anchor"')
+    expect(html).toContain('href="#')
   })
 
   it('добавляет id заголовкам (для якорей и TOC)', async () => {

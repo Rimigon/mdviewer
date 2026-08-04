@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
+import { renderMarkdown } from './lib/markdown'
+import { applyTheme } from './lib/theme'
+import MarkdownView from './components/MarkdownView'
 
 export default function App() {
-  const [source, setSource] = useState<string>('')
-  const [baseDir, setBaseDir] = useState<string>('')
-  const [filePath, setFilePath] = useState<string>('')
-  const [status, setStatus] = useState<string>('')
+  const [source, setSource] = useState('')
+  const [baseDir, setBaseDir] = useState('')
+  const [filePath, setFilePath] = useState('')
+  const [status, setStatus] = useState('')
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
+  const [renderedHtml, setRenderedHtml] = useState('')
 
   async function loadFile(path: string): Promise<void> {
     try {
@@ -19,6 +24,21 @@ export default function App() {
   }
 
   useEffect(() => {
+    applyTheme(dark)
+    localStorage.setItem('theme', dark ? 'dark' : 'light')
+  }, [dark])
+
+  useEffect(() => {
+    let cancelled = false
+    renderMarkdown(source).then((h) => {
+      if (!cancelled) setRenderedHtml(h)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [source])
+
+  useEffect(() => {
     window.api.startFile().then((p) => {
       if (p) return loadFile(p)
     })
@@ -26,9 +46,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <pre className="raw-view" title={baseDir || undefined}>
-        {source || 'Загрузите .md файл'}
-      </pre>
+      <header className="toolbar">
+        <span className="path">{filePath}</span>
+        <button onClick={() => setDark((d) => !d)}>{dark ? '☀️ Светлая' : '🌙 Тёмная'}</button>
+      </header>
+      <main className="content">
+        <MarkdownView html={renderedHtml} baseDir={baseDir} />
+      </main>
       <footer className="status">{filePath || status}</footer>
     </div>
   )

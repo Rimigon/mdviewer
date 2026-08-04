@@ -12,12 +12,19 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
 
 // defaultSchema (github) + разрешаем className/style везде:
-// KaTeX (классы + инлайн-стили), hljs (классы), autolink-headings (класс anchor)
+// KaTeX (классы + инлайн-стили), hljs (классы), autolink-headings (класс anchor).
+// У `code` и `a` свои списки атрибутов, поэтому className разрешаем явно:
+// - code: заменяем github-tuple (language-*) на безусловный className
+// - a: убираем футернотный tuple ["className","data-footnote-backref"], иначе
+//   findDefinition берёт его первым и вырезает все прочие классы
+const githubAAttrs = (defaultSchema.attributes ?? {}).a ?? []
 const schema = {
   ...defaultSchema,
   attributes: {
     ...(defaultSchema.attributes ?? {}),
-    '*': [...((defaultSchema.attributes ?? {})['*'] ?? []), 'className', 'style']
+    '*': [...((defaultSchema.attributes ?? {})['*'] ?? []), 'className', 'style'],
+    code: ['className'],
+    a: [...githubAAttrs.filter((d) => !(Array.isArray(d) && d[0] === 'className')), 'className']
   }
 }
 
