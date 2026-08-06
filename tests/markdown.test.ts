@@ -4,7 +4,7 @@ import { renderMarkdown } from '../src/renderer/src/lib/markdown'
 describe('renderMarkdown', () => {
   it('рендерит GFM-таблицу', async () => {
     const html = await renderMarkdown('| a | b |\n|---|---|\n| 1 | 2 |')
-    expect(html).toContain('<table>')
+    expect(html).toContain('<table')
     expect(html).toContain('<th>')
   })
 
@@ -51,6 +51,6 @@ describe('renderMarkdown', () => {
 
   it('рендерит инлайн-HTML (details/summary)', async () => {
     const html = await renderMarkdown('<details><summary>спойлер</summary>текст</details>')
-    expect(html).toContain('<details>')
+    expect(html).toContain('<details')
   })
 })

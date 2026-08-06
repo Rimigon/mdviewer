@@ -22,6 +22,8 @@ export async function renderMermaid(container: HTMLElement, dark: boolean): Prom
       // вставляем через DOMParser (скрипты инертны), а не через innerHTML
       const holder = document.createElement('div')
       holder.className = 'mermaid'
+      // переносим якорь синхронного скролла (строка исходника) на новый элемент
+      if (pre.dataset.srcLine) holder.dataset.srcLine = pre.dataset.srcLine
       const svgDoc = new DOMParser().parseFromString(svg, 'image/svg+xml')
       const svgEl = svgDoc.documentElement
       if (!svgEl || svgEl.nodeName !== 'svg') throw new Error('mermaid вернул некорректный SVG')
@@ -30,6 +32,7 @@ export async function renderMermaid(container: HTMLElement, dark: boolean): Prom
     } catch (err) {
       const errEl = document.createElement('div')
       errEl.className = 'mermaid-error'
+      if (pre.dataset.srcLine) errEl.dataset.srcLine = pre.dataset.srcLine
       errEl.textContent = `Ошибка Mermaid: ${err instanceof Error ? err.message : String(err)}`
       pre.replaceWith(errEl)
     }

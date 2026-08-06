@@ -21,12 +21,18 @@ import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { editorThemeExtensions } from "../lib/cmTheme";
 
+export interface EditorApi {
+	scrollToLine: (line: number) => void;
+}
+
 interface Props {
 	source: string;
 	onChange: (value: string) => void;
 	onCursor: (pos: { line: number; col: number }) => void;
 	onSave: () => void;
 	dark: boolean;
+	onTopLine?: (line: number) => void;
+	apiRef?: React.MutableRefObject<EditorApi | null>;
 }
 
 export default function EditorPane({
@@ -35,6 +41,8 @@ export default function EditorPane({
 	onCursor,
 	onSave,
 	dark,
+	onTopLine,
+	apiRef,
 }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const viewRef = useRef<EditorView | null>(null);
@@ -42,9 +50,21 @@ export default function EditorPane({
 	const onChangeRef = useRef(onChange);
 	const onCursorRef = useRef(onCursor);
 	const onSaveRef = useRef(onSave);
+	const onTopLineRef = useRef(onTopLine);
 	onChangeRef.current = onChange;
 	onCursorRef.current = onCursor;
 	onSaveRef.current = onSave;
+	onTopLineRef.current = onTopLine;
+
+	function scrollToLine(line: number): void {
+		const view = viewRef.current;
+		if (!view) return;
+		const clamped = Math.max(1, Math.min(line, view.state.doc.lines));
+		const from = view.state.doc.line(clamped).from;
+		view.dispatch({
+			effects: EditorView.scrollIntoView(from, { y: "start", yMargin: 0 }),
+		});
+	}
 
 	// Создание редактора один раз
 	useEffect(() => {
@@ -105,10 +125,24 @@ export default function EditorPane({
 		viewRef.current = view;
 		onCursorRef.current({ line: 1, col: 1 });
 
+		// Отчёт о строке у верхнего края редактора (для синхронного скролла)
+		const onScroll = (): void => {
+			const top = view.scrollDOM.scrollTop;
+			const block = view.lineBlockAtHeight(top);
+			onTopLineRef.current?.(view.state.doc.lineAt(block.from).number);
+		};
+		view.scrollDOM.addEventListener("scroll", onScroll);
+
+		if (apiRef) {
+			apiRef.current = { scrollToLine };
+		}
+
 		return () => {
+			view.scrollDOM.removeEventListener("scroll", onScroll);
 			view.destroy();
 			viewRef.current = null;
 			themeCompartmentRef.current = null;
+			if (apiRef) apiRef.current = null;
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

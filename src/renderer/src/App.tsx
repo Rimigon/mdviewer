@@ -6,7 +6,14 @@ import MarkdownView from "./components/MarkdownView";
 import TocSidebar from "./components/TocSidebar";
 import FileTree from "./components/FileTree";
 import SearchBar from "./components/SearchBar";
-import EditorPane from "./components/EditorPane";
+import EditorPane, { type EditorApi } from "./components/EditorPane";
+import {
+	collectBlocks,
+	findBlockAtLine,
+	findBlockNearTop,
+	scrollOffsetForBlock,
+	type SyncBlock,
+} from "./lib/syncScroll";
 import {
 	EditIcon,
 	EyeIcon,
@@ -42,6 +49,41 @@ export default function App() {
 
 	const dirty = filePath !== "" && source !== savedSource;
 	const previewTimer = useRef<number | null>(null);
+
+	// ---- Синхронный скролл (режим «Правка») ----
+	const previewRef = useRef<HTMLDivElement>(null);
+	const editorApiRef = useRef<EditorApi | null>(null);
+	const blocksRef = useRef<SyncBlock[]>([]);
+	// Замок против петель: после программного скролла другой хэндлер молчит 120 мс
+	const syncLockUntilRef = useRef(0);
+
+	function rebuildBlocks(root: HTMLElement): void {
+		blocksRef.current = collectBlocks(root);
+	}
+
+	// Скролл редактора -> строка у верхнего края -> блок превью -> скролл превью
+	function handleEditorTopLine(line: number): void {
+		if (Date.now() < syncLockUntilRef.current) return;
+		const pane = previewRef.current;
+		const blocks = blocksRef.current;
+		if (!pane || blocks.length === 0) return;
+		const block = findBlockAtLine(blocks, line);
+		if (!block) return;
+		syncLockUntilRef.current = Date.now() + 120;
+		pane.scrollTop = scrollOffsetForBlock(pane, block);
+	}
+
+	// Скролл превью -> блок у верхнего края -> его строка -> скролл редактора
+	function handlePreviewScroll(): void {
+		if (Date.now() < syncLockUntilRef.current) return;
+		const pane = previewRef.current;
+		const blocks = blocksRef.current;
+		if (!pane || blocks.length === 0) return;
+		const block = findBlockNearTop(blocks, pane);
+		if (!block) return;
+		syncLockUntilRef.current = Date.now() + 120;
+		editorApiRef.current?.scrollToLine(block.line);
+	}
 
 	// ---- Загрузка файла ----
 	async function loadFile(path: string): Promise<void> {
@@ -248,8 +290,14 @@ export default function App() {
 								onCursor={setCursor}
 								onSave={() => void save()}
 								dark={dark}
+								onTopLine={handleEditorTopLine}
+								apiRef={editorApiRef}
 							/>
-							<div className="preview-pane">
+							<div
+								className="preview-pane"
+								ref={previewRef}
+								onScroll={handlePreviewScroll}
+							>
 								<MarkdownView
 									html={renderedHtml}
 									baseDir={baseDir}
@@ -257,6 +305,7 @@ export default function App() {
 									query={query}
 									onToc={setToc}
 									onSearchCount={setSearchCount}
+									onRendered={rebuildBlocks}
 								/>
 							</div>
 						</div>
