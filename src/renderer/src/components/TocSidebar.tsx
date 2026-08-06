@@ -14,7 +14,6 @@ export default function TocSidebar({ entries, onNavigate }: Props) {
 		);
 	}
 	return (
-		// Ложное срабатывание: правило помечает любой контейнер с <a>, а не только вложенные ссылки
 		// pi-lens-ignore: no-nested-links
 		<aside className="toc" role="navigation" aria-label="Оглавление">
 			<div className="toc-title">Оглавление</div>
