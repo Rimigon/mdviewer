@@ -22,7 +22,10 @@ export function collectBlocks(root: HTMLElement): SyncBlock[] {
  * Бинарный поиск: последний блок с line <= target.
  * Возвращает null, если все блоки начинаются позже target.
  */
-export function findBlockAtLine(blocks: SyncBlock[], target: number): SyncBlock | null {
+export function findBlockAtLine(
+	blocks: SyncBlock[],
+	target: number,
+): SyncBlock | null {
 	let lo = 0;
 	let hi = blocks.length - 1;
 	let answer: SyncBlock | null = null;
@@ -42,7 +45,10 @@ export function findBlockAtLine(blocks: SyncBlock[], target: number): SyncBlock 
  * Блок, пересекающий верхний край контейнера: последний блок, чей верх
  * выше/на уровне верхнего края контейнера (или первый блок, если все ниже).
  */
-export function findBlockNearTop(blocks: SyncBlock[], container: HTMLElement): SyncBlock | null {
+export function findBlockNearTop(
+	blocks: SyncBlock[],
+	container: HTMLElement,
+): SyncBlock | null {
 	if (blocks.length === 0) return null;
 	const top = container.getBoundingClientRect().top + 1;
 	let answer: SyncBlock | null = null;
@@ -58,7 +64,11 @@ export function findBlockNearTop(blocks: SyncBlock[], container: HTMLElement): S
 }
 
 /** Позиция прокрутки контейнера, при которой блок встанет у верхнего края. */
-export function scrollOffsetForBlock(container: HTMLElement, block: SyncBlock, margin = 16): number {
+export function scrollOffsetForBlock(
+	container: HTMLElement,
+	block: SyncBlock,
+	margin = 16,
+): number {
 	const paneRect = container.getBoundingClientRect();
 	const blockRect = block.el.getBoundingClientRect();
 	return container.scrollTop + (blockRect.top - paneRect.top) - margin;
