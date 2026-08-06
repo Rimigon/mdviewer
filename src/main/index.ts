@@ -1,17 +1,12 @@
-import {
-	app,
-	BrowserWindow,
-	dialog,
-	ipcMain,
-	Menu,
-	shell,
-} from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from "electron";
 import { join, dirname, resolve } from "node:path";
-import { readFile, readdir, stat as fsStat } from "node:fs/promises";
+import { readFile, readdir, stat as fsStat, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import type { DirEntry, FileContent, PathStat } from "../shared/types";
+import type { DirEntry, FileContent, PathStat, WriteResult } from "../shared/types";
 
 let mainWindow: BrowserWindow | null = null;
+let isDirty = false;
+let closeConfirmed = false;
 const isDev = !app.isPackaged;
 
 function createWindow(): void {
@@ -28,6 +23,27 @@ function createWindow(): void {
 		},
 	});
 	mainWindow = win;
+
+	// Защита от потери несохранённых изменений
+	win.on("close", (e) => {
+		if (!isDirty || closeConfirmed) return;
+		e.preventDefault();
+		const choice = dialog.showMessageBoxSync(win, {
+			type: "warning",
+			buttons: ["Сохранить и закрыть", "Не сохранять", "Отмена"],
+			defaultId: 0,
+			cancelId: 2,
+			message: "Несохранённые изменения",
+			detail: "Файл был изменён. Сохранить изменения перед закрытием?",
+		});
+		if (choice === 0) {
+			win.webContents.send("app:save-before-close");
+		} else if (choice === 1) {
+			isDirty = false;
+			closeConfirmed = true;
+			win.close();
+		}
+	});
 
 	// Внешние ссылки никогда не открываются внутри окна приложения
 	win.webContents.setWindowOpenHandler(({ url }) => {
@@ -93,6 +109,23 @@ function registerIpc(): void {
 		} catch {
 			return { exists: false, isDir: false, isFile: false };
 		}
+	});
+
+	ipcMain.handle(
+		"fs:writeFile",
+		async (_e, p: string, content: string): Promise<WriteResult> => {
+			await writeFile(p, content, "utf8");
+			return { ok: true };
+		},
+	);
+
+	ipcMain.on("app:set-dirty", (_e, dirty: boolean) => {
+		isDirty = dirty;
+	});
+
+	ipcMain.on("app:confirm-close", () => {
+		closeConfirmed = true;
+		mainWindow?.close();
 	});
 
 	ipcMain.handle(
@@ -185,6 +218,11 @@ function buildRussianMenu(): void {
 					label: "Открыть папку…",
 					accelerator: "CmdOrCtrl+Shift+O",
 					click: () => send("menu:open-folder"),
+				},
+				{
+					label: "Сохранить",
+					accelerator: "CmdOrCtrl+S",
+					click: () => send("menu:save"),
 				},
 				{ type: "separator" },
 				{ role: "quit", label: "Выход" },

@@ -7,6 +7,20 @@ const api = {
 		ipcRenderer.invoke("dialog:openFolder"),
 	readFile: (path: string): Promise<FileContent> =>
 		ipcRenderer.invoke("fs:readFile", path),
+	saveFile: (path: string, content: string): Promise<{ ok: boolean }> =>
+		ipcRenderer.invoke("fs:writeFile", path, content),
+	setDirty: (dirty: boolean): void => ipcRenderer.send("app:set-dirty", dirty),
+	confirmClose: (): void => ipcRenderer.send("app:confirm-close"),
+	onSaveAction: (cb: () => void): (() => void) => {
+		const listener = (): void => cb();
+		ipcRenderer.on("menu:save", listener);
+		return () => ipcRenderer.removeListener("menu:save", listener);
+	},
+	onSaveBeforeClose: (cb: () => void): (() => void) => {
+		const listener = (): void => cb();
+		ipcRenderer.on("app:save-before-close", listener);
+		return () => ipcRenderer.removeListener("app:save-before-close", listener);
+	},
 	readDir: (path: string): Promise<DirEntry[]> =>
 		ipcRenderer.invoke("fs:readDir", path),
 	stat: (path: string): Promise<PathStat> =>
@@ -22,17 +36,20 @@ const api = {
 		return () => ipcRenderer.removeListener("app:open-path", listener);
 	},
 	onMenuAction: (
-		cb: (action: "open-file" | "open-folder") => void,
+		cb: (action: "open-file" | "open-folder" | "save") => void,
 	): (() => void) => {
 		const listener = (_e: Electron.IpcRendererEvent, channel: string): void => {
 			if (channel === "menu:open-file") cb("open-file");
 			else if (channel === "menu:open-folder") cb("open-folder");
+			else if (channel === "menu:save") cb("save");
 		};
 		ipcRenderer.on("menu:open-file", listener);
 		ipcRenderer.on("menu:open-folder", listener);
+		ipcRenderer.on("menu:save", listener);
 		return () => {
 			ipcRenderer.removeListener("menu:open-file", listener);
 			ipcRenderer.removeListener("menu:open-folder", listener);
+			ipcRenderer.removeListener("menu:save", listener);
 		};
 	},
 };

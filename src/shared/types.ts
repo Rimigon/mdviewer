@@ -14,3 +14,7 @@ export interface PathStat {
   isDir: boolean
   isFile: boolean
 }
+
+export interface WriteResult {
+  ok: boolean
+}
