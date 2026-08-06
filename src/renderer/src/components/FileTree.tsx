@@ -1,8 +1,15 @@
 import { useState } from "react";
 import type { DirEntry } from "@shared/types";
+import {
+	ChevronIcon,
+	FileIcon,
+	FolderClosedIcon,
+	FolderOpenIcon,
+} from "./icons";
 
 interface Props {
 	root: string;
+	activePath: string | null;
 	onOpenFile: (path: string) => void;
 }
 
@@ -16,10 +23,12 @@ interface NodeState {
 function TreeNode({
 	node,
 	depth,
+	activePath,
 	onOpenFile,
 }: {
 	node: NodeState;
 	depth: number;
+	activePath: string | null;
 	onOpenFile: (path: string) => void;
 }) {
 	const [state, setState] = useState(node);
@@ -43,17 +52,35 @@ function TreeNode({
 	}
 
 	const isMd = /\.(md|markdown|mdown|mkd)$/i.test(node.entry.name);
+	const isActive = node.entry.path === activePath;
 
 	return (
 		<div>
 			<div
-				className={`tree-row${node.entry.isDir ? " dir" : ""}${isMd ? " md" : ""}`}
-				style={{ paddingLeft: `${depth * 14}px` }}
+				className={`tree-row${node.entry.isDir ? " dir" : ""}${isMd ? " md" : ""}${isActive ? " active" : ""}`}
+				style={{ paddingLeft: `${8 + depth * 14}px` }}
 				onClick={() => void toggle()}
 				title={node.entry.path}
 			>
+				{node.entry.isDir ? (
+					<span
+						className={`tree-chevron${state.expanded ? " expanded" : ""}`}
+					>
+						<ChevronIcon />
+					</span>
+				) : (
+					<span className="tree-chevron" />
+				)}
 				<span className="tree-icon">
-					{node.entry.isDir ? (state.expanded ? "📂" : "📁") : "📄"}
+					{node.entry.isDir ? (
+						state.expanded ? (
+							<FolderOpenIcon />
+						) : (
+							<FolderClosedIcon />
+						)
+					) : (
+						<FileIcon />
+					)}
 				</span>
 				<span className="tree-name">{node.entry.name}</span>
 				{state.loading && <span className="tree-loading">…</span>}
@@ -70,6 +97,7 @@ function TreeNode({
 								loading: false,
 							}}
 							depth={depth + 1}
+							activePath={activePath}
 							onOpenFile={onOpenFile}
 						/>
 					))}
@@ -79,7 +107,7 @@ function TreeNode({
 	);
 }
 
-export default function FileTree({ root, onOpenFile }: Props) {
+export default function FileTree({ root, activePath, onOpenFile }: Props) {
 	const rootEntry: DirEntry = {
 		name: root.split(/[\\/]/).pop() ?? root,
 		path: root,
@@ -90,18 +118,17 @@ export default function FileTree({ root, onOpenFile }: Props) {
 			<div className="tree-root" title={root}>
 				{rootEntry.name}
 			</div>
-			<div className="tree-scroll">
-				<TreeNode
-					node={{
-						entry: rootEntry,
-						expanded: true,
-						children: null,
-						loading: false,
-					}}
-					depth={0}
-					onOpenFile={onOpenFile}
-				/>
-			</div>
+			<TreeNode
+				node={{
+					entry: rootEntry,
+					expanded: true,
+					children: null,
+					loading: false,
+				}}
+				depth={0}
+				activePath={activePath}
+				onOpenFile={onOpenFile}
+			/>
 		</aside>
 	);
 }
