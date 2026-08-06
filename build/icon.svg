@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <!-- фон: скруглённый квадрат, фирменный GitHub-синий (плоский, без градиента) -->
-  <rect x="16" y="16" width="480" height="480" rx="112" fill="#0969da"/>
-  <!-- страница документа -->
-  <rect x="104" y="88" width="304" height="336" rx="36" fill="#ffffff"/>
-  <!-- символ Markdown: решётка # (симметрично относительно центра 256) -->
-  <rect x="192" y="140" width="28" height="144" rx="10" fill="#0969da"/>
-  <rect x="292" y="140" width="28" height="144" rx="10" fill="#0969da"/>
-  <rect x="148" y="184" width="216" height="28" rx="10" fill="#0969da"/>
-  <rect x="148" y="252" width="216" height="28" rx="10" fill="#0969da"/>
+  <!-- фон: скруглённый квадрат на всю канву (без прозрачных полей — не обрезается в таскбаре/заголовке) -->
+  <rect width="512" height="512" rx="96" fill="#0969da"/>
+  <!-- страница документа в безопасной зоне -->
+  <rect x="132" y="96" width="248" height="320" rx="32" fill="#ffffff"/>
+  <!-- символ Markdown: решётка #, симметрично относительно центра 256 -->
+  <rect x="196" y="156" width="30" height="152" rx="12" fill="#0969da"/>
+  <rect x="286" y="156" width="30" height="152" rx="12" fill="#0969da"/>
+  <rect x="160" y="206" width="192" height="30" rx="12" fill="#0969da"/>
+  <rect x="160" y="266" width="192" height="30" rx="12" fill="#0969da"/>
   <!-- строки тела документа -->
-  <rect x="148" y="350" width="150" height="14" rx="7" fill="#d0d7de"/>
-  <rect x="148" y="382" width="104" height="14" rx="7" fill="#d0d7de"/>
+  <rect x="160" y="356" width="136" height="16" rx="8" fill="#d0d7de"/>
+  <rect x="160" y="384" width="92" height="16" rx="8" fill="#d0d7de"/>
 </svg>

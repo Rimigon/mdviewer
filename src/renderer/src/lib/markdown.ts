@@ -42,7 +42,11 @@ const processor = unified()
   })
   .use(rehypeKatex)
   .use(rehypeHighlight, { detect: false })
-  .use(rehypeSanitize, schema)
+  // clobberPrefix: '' — не префиксовать id/name префиксом user-content-:
+  // сноски и якоря remark/rehype уже генерируют id вида user-content-fn-1,
+  // двойной префикс ломал бы совпадение href="#..." с элементом.
+  // rehype-sanitize v6 принимает Schema целиком — clobberPrefix это поле Schema.
+  .use(rehypeSanitize, { ...schema, clobberPrefix: '' })
   .use(rehypeStringify)
 
 export async function renderMarkdown(source: string): Promise<string> {

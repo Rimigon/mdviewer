@@ -58,6 +58,10 @@ function createWindow(): void {
 	win.webContents.on("will-navigate", (event, url) => {
 		const current = win.webContents.getURL();
 		if (url === current) return; // перезагрузка / HMR
+		// Внутристраничный переход по якорю (#...) — разрешаем, иначе
+		// клики по сноскам и ссылкам с hash открывали бы страницу в браузере
+		const stripHash = (u: string) => u.replace(/#.*$/, "");
+		if (stripHash(url) === stripHash(current)) return;
 		if (/^(https?:|mailto:|tel:|file:)/i.test(url)) {
 			event.preventDefault();
 			void shell.openExternal(url);
