@@ -2,7 +2,12 @@ import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from "electron";
 import { join, dirname, resolve } from "node:path";
 import { readFile, readdir, stat as fsStat, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import type { DirEntry, FileContent, PathStat, WriteResult } from "../shared/types";
+import type {
+	DirEntry,
+	FileContent,
+	PathStat,
+	WriteResult,
+} from "../shared/types";
 
 let mainWindow: BrowserWindow | null = null;
 let isDirty = false;

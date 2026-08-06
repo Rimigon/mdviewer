@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > Автоматически поддерживаемая сводка контекста для AI-агентов.
-> Последнее обновление: 2026-08-06 12:50:29 UTC
+> Последнее обновление: 2026-08-06 13:10:27 UTC
 
 ## Project Overview
 
@@ -17,7 +17,7 @@
 <!-- agents-md:auto:tech-stack -->
 - Фреймворк/UI: React
 - Пакетный менеджер: npm
-- Основные зависимости: codemirror, @codemirror/autocomplete, @codemirror/commands, @codemirror/lang-markdown, @codemirror/language, @codemirror/search, @codemirror/state, @codemirror/view, @lezer/highlight, github-markdown-css, highlight.js, katex, mermaid, react, react-dom, rehype-autolink-headings, rehype-highlight …
+- Основные зависимости: @codemirror/autocomplete, @codemirror/commands, @codemirror/lang-markdown, @codemirror/language, @codemirror/search, @codemirror/state, @codemirror/view, @lezer/highlight …
 - Dev-зависимости: @types/jsdom, @types/node, @types/react, @types/react-dom, @vitejs/plugin-react, electron, electron-builder, electron-vite …
 <!-- /agents-md:auto:tech-stack -->
 

@@ -23,7 +23,10 @@ export const darkEditorTheme = EditorView.theme({
 		border: "none",
 	},
 	".cm-activeLineGutter": { backgroundColor: "transparent", color: "#8b95a5" },
-	".cm-searchMatch": { backgroundColor: "rgba(255, 213, 79, 0.3)", outline: "none" },
+	".cm-searchMatch": {
+		backgroundColor: "rgba(255, 213, 79, 0.3)",
+		outline: "none",
+	},
 	".cm-searchMatch.cm-searchMatch-selected": {
 		backgroundColor: "rgba(255, 213, 79, 0.5)",
 	},
@@ -50,7 +53,10 @@ export const lightEditorTheme = EditorView.theme({
 		border: "none",
 	},
 	".cm-activeLineGutter": { backgroundColor: "transparent", color: "#57606a" },
-	".cm-searchMatch": { backgroundColor: "rgba(255, 213, 79, 0.5)", outline: "none" },
+	".cm-searchMatch": {
+		backgroundColor: "rgba(255, 213, 79, 0.5)",
+		outline: "none",
+	},
 });
 
 export const darkHighlightStyle = HighlightStyle.define([
@@ -63,7 +69,10 @@ export const darkHighlightStyle = HighlightStyle.define([
 	{ tag: t.strikethrough, textDecoration: "line-through", color: "#8b949e" },
 	{ tag: t.link, color: "#6a9df7", textDecoration: "underline" },
 	{ tag: t.url, color: "#8b949e", textDecoration: "underline" },
-	{ tag: t.monospace, fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace" },
+	{
+		tag: t.monospace,
+		fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace",
+	},
 	{ tag: t.quote, color: "#8b949e", fontStyle: "italic" },
 	{ tag: t.contentSeparator, color: "#6a9df7" },
 	{ tag: t.list, color: "#8b949e" },
@@ -80,7 +89,10 @@ export const lightHighlightStyle = HighlightStyle.define([
 	{ tag: t.strikethrough, textDecoration: "line-through", color: "#57606a" },
 	{ tag: t.link, color: "#0969da", textDecoration: "underline" },
 	{ tag: t.url, color: "#57606a", textDecoration: "underline" },
-	{ tag: t.monospace, fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace" },
+	{
+		tag: t.monospace,
+		fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace",
+	},
 	{ tag: t.quote, color: "#57606a", fontStyle: "italic" },
 	{ tag: t.contentSeparator, color: "#0969da" },
 	{ tag: t.list, color: "#57606a" },

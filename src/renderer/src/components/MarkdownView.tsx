@@ -63,7 +63,5 @@ export default function MarkdownView({
 		};
 	}, [html, baseDir, dark, query]);
 
-	return (
-		<div className="markdown-body" ref={ref} onClick={handleClick} />
-	);
+	return <div className="markdown-body" ref={ref} onClick={handleClick} />;
 }

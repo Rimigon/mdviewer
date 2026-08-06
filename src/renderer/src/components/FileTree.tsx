@@ -63,9 +63,7 @@ function TreeNode({
 				title={node.entry.path}
 			>
 				{node.entry.isDir ? (
-					<span
-						className={`tree-chevron${state.expanded ? " expanded" : ""}`}
-					>
+					<span className={`tree-chevron${state.expanded ? " expanded" : ""}`}>
 						<ChevronIcon />
 					</span>
 				) : (

@@ -1,20 +1,20 @@
 export interface DirEntry {
-  name: string
-  path: string
-  isDir: boolean
+	name: string;
+	path: string;
+	isDir: boolean;
 }
 
 export interface FileContent {
-  content: string
-  baseDir: string
+	content: string;
+	baseDir: string;
 }
 
 export interface PathStat {
-  exists: boolean
-  isDir: boolean
-  isFile: boolean
+	exists: boolean;
+	isDir: boolean;
+	isFile: boolean;
 }
 
 export interface WriteResult {
-  ok: boolean
+	ok: boolean;
 }
