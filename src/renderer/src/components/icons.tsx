@@ -144,3 +144,14 @@ export function FileIcon({ size = 16, className }: IconProps) {
 		</svg>
 	);
 }
+
+export function TextSizeIcon({ size = 16, className }: IconProps) {
+	return (
+		<svg {...svgProps(size, className)}>
+			<path d="M5 20 9.5 6 14 20" />
+			<path d="M6.9 14.8h5.2" />
+			<path d="M19 15.4a2.3 2.3 0 1 0 0 4.6 2.3 2.3 0 1 0 0-4.6Z" />
+			<path d="M19 20v-6.5" />
+		</svg>
+	);
+}
