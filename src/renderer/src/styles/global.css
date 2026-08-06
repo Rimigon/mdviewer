@@ -5,6 +5,8 @@
 	--radius-sm: 6px;
 	--radius-md: 8px;
 	--transition: 120ms ease;
+	--font-scale-read: 1;
+	--font-scale-editor: 1;
 }
 * {
 	box-sizing: border-box;
@@ -222,7 +224,7 @@ button {
 .editor-pane .cm-editor {
 	height: 100%;
 	width: 100%;
-	font-size: 13.5px;
+	font-size: calc(13.5px * var(--font-scale-editor));
 }
 .editor-pane .cm-scroller {
 	font-family: var(--font-mono);
@@ -413,4 +415,59 @@ button {
 }
 html[data-theme="dark"] .markdown-body mark {
 	background: rgba(255, 213, 79, 0.25);
+}
+
+/* ---- Масштаб текста ---- */
+/* `body` поднимает специфичность выше инжектируемого темой github-markdown-css */
+body .markdown-body {
+	font-size: calc(16px * var(--font-scale-read));
+}
+.text-size {
+	position: relative;
+	display: inline-flex;
+}
+.text-size-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 40;
+}
+.text-size-popover {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	z-index: 50;
+	width: 220px;
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	background: var(--bg-panel);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow);
+}
+.text-size-row {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	cursor: default;
+}
+.text-size-row-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+}
+.text-size-label {
+	font-size: 12.5px;
+	color: var(--text);
+}
+.text-size-value {
+	font-size: 12px;
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+.text-size-range {
+	width: 100%;
+	accent-color: var(--accent);
+	cursor: pointer;
 }

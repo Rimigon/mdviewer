@@ -7,6 +7,7 @@ import TocSidebar from "./components/TocSidebar";
 import FileTree from "./components/FileTree";
 import SearchBar from "./components/SearchBar";
 import EditorPane, { type EditorApi } from "./components/EditorPane";
+import TextSizeControl from "./components/TextSizeControl";
 import {
 	collectBlocks,
 	findBlockAtLine,
@@ -77,7 +78,8 @@ export default function App() {
 			}
 		} else {
 			const container = readContainerRef.current;
-			if (container) container.scrollTop = scrollOffsetForBlock(container, block);
+			if (container)
+				container.scrollTop = scrollOffsetForBlock(container, block);
 		}
 		restoreLineRef.current = null;
 	}
@@ -307,6 +309,7 @@ export default function App() {
 				<span className="toolbar-divider" />
 				<SearchBar query={query} onChange={setQuery} count={searchCount} />
 				<span className="toolbar-divider" />
+				<TextSizeControl />
 				<button
 					className="icon-btn"
 					title={dark ? "Светлая тема" : "Тёмная тема"}
@@ -342,7 +345,8 @@ export default function App() {
 								apiRef={editorApiRef}
 								initialScrollLine={restoreLineRef.current}
 							/>
-							<div className="preview-pane"
+							<div
+								className="preview-pane"
 								ref={previewRef}
 								onScroll={handlePreviewScroll}
 							>
