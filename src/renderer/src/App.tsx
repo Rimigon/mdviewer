@@ -52,17 +52,39 @@ export default function App() {
 
 	// ---- Синхронный скролл (режим «Правка») ----
 	const previewRef = useRef<HTMLDivElement>(null);
+	const readContainerRef = useRef<HTMLDivElement>(null);
 	const editorApiRef = useRef<EditorApi | null>(null);
 	const blocksRef = useRef<SyncBlock[]>([]);
 	// Замок против петель: после программного скролла другой хэндлер молчит 120 мс
 	const syncLockUntilRef = useRef(0);
+	// Позиции для восстановления при переключении режима
+	const lastReadLineRef = useRef(1);
+	const lastEditLineRef = useRef(1);
+	const restoreLineRef = useRef<number | null>(null);
 
 	function rebuildBlocks(root: HTMLElement): void {
 		blocksRef.current = collectBlocks(root);
+		// Применяем отложенное восстановление позиции (блоки только что готовы)
+		const line = restoreLineRef.current;
+		if (line == null) return;
+		const block = findBlockAtLine(blocksRef.current, line);
+		if (!block) return;
+		if (mode === "edit") {
+			const pane = previewRef.current;
+			if (pane) {
+				syncLockUntilRef.current = Date.now() + 120;
+				pane.scrollTop = scrollOffsetForBlock(pane, block);
+			}
+		} else {
+			const container = readContainerRef.current;
+			if (container) container.scrollTop = scrollOffsetForBlock(container, block);
+		}
+		restoreLineRef.current = null;
 	}
 
 	// Скролл редактора -> строка у верхнего края -> блок превью -> скролл превью
 	function handleEditorTopLine(line: number): void {
+		lastEditLineRef.current = line;
 		if (Date.now() < syncLockUntilRef.current) return;
 		const pane = previewRef.current;
 		const blocks = blocksRef.current;
@@ -85,6 +107,27 @@ export default function App() {
 		editorApiRef.current?.scrollToLine(block.line);
 	}
 
+	// Скролл в режиме «Просмотр» -> запоминаем строку у верхнего края
+	function handleReadScroll(): void {
+		const container = readContainerRef.current;
+		const blocks = blocksRef.current;
+		if (!container || blocks.length === 0) return;
+		const block = findBlockNearTop(blocks, container);
+		if (block) lastReadLineRef.current = block.line;
+	}
+
+	// Переключение режима с сохранением позиции
+	function toggleMode(): void {
+		const next = mode === "edit" ? "read" : "edit";
+		if (next === "edit") {
+			restoreLineRef.current = lastReadLineRef.current;
+		} else {
+			restoreLineRef.current = lastEditLineRef.current;
+		}
+		blocksRef.current = []; // старые блоки от другой панели устарели
+		setMode(next);
+	}
+
 	// ---- Загрузка файла ----
 	async function loadFile(path: string): Promise<void> {
 		try {
@@ -95,6 +138,11 @@ export default function App() {
 			setFilePath(path);
 			setCursor(null);
 			setStatus(path);
+			// Новый документ — сбрасываем позиции
+			lastReadLineRef.current = 1;
+			lastEditLineRef.current = 1;
+			restoreLineRef.current = null;
+			blocksRef.current = [];
 		} catch (err) {
 			setStatus(`Ошибка чтения: ${String(err)}`);
 		}
@@ -243,7 +291,7 @@ export default function App() {
 				<button
 					className={`icon-btn${mode === "edit" ? " active" : ""}`}
 					title={mode === "edit" ? "Режим правки" : "Включить режим правки"}
-					onClick={() => setMode((m) => (m === "edit" ? "read" : "edit"))}
+					onClick={toggleMode}
 				>
 					{mode === "edit" ? <EditIcon /> : <EyeIcon />}
 				</button>
@@ -292,9 +340,9 @@ export default function App() {
 								dark={dark}
 								onTopLine={handleEditorTopLine}
 								apiRef={editorApiRef}
+								initialScrollLine={restoreLineRef.current}
 							/>
-							<div
-								className="preview-pane"
+							<div className="preview-pane"
 								ref={previewRef}
 								onScroll={handlePreviewScroll}
 							>
@@ -310,7 +358,11 @@ export default function App() {
 							</div>
 						</div>
 					) : (
-						<div className="content-inner read">
+						<div
+							className="content-inner read"
+							ref={readContainerRef}
+							onScroll={handleReadScroll}
+						>
 							<MarkdownView
 								html={renderedHtml}
 								baseDir={baseDir}
@@ -318,6 +370,7 @@ export default function App() {
 								query={query}
 								onToc={setToc}
 								onSearchCount={setSearchCount}
+								onRendered={rebuildBlocks}
 							/>
 							{tocOpen && <TocSidebar entries={toc} onNavigate={scrollToId} />}
 						</div>

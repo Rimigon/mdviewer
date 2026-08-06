@@ -33,6 +33,7 @@ interface Props {
 	dark: boolean;
 	onTopLine?: (line: number) => void;
 	apiRef?: React.MutableRefObject<EditorApi | null>;
+	initialScrollLine?: number | null;
 }
 
 export default function EditorPane({
@@ -43,6 +44,7 @@ export default function EditorPane({
 	dark,
 	onTopLine,
 	apiRef,
+	initialScrollLine,
 }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const viewRef = useRef<EditorView | null>(null);
@@ -124,6 +126,12 @@ export default function EditorPane({
 		const view = new EditorView({ state, parent: container });
 		viewRef.current = view;
 		onCursorRef.current({ line: 1, col: 1 });
+
+		// Восстановление позиции при переключении режима (монтирование редактора).
+		// Вызывается на каждом монтировании, поэтому переживает StrictMode-ремоунт.
+		if (initialScrollLine && initialScrollLine > 1) {
+			scrollToLine(initialScrollLine);
+		}
 
 		// Отчёт о строке у верхнего края редактора (для синхронного скролла)
 		const onScroll = (): void => {
