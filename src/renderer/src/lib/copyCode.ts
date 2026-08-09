@@ -55,7 +55,10 @@ function copyIcon(): SVGSVGElement {
 	rect.setAttribute("rx", "2");
 	rect.setAttribute("ry", "2");
 	const path = document.createElementNS(SVG_NS, "path");
-	path.setAttribute("d", "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2");
+	path.setAttribute(
+		"d",
+		"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2",
+	);
 	svg.append(rect, path);
 	return svg;
 }
@@ -63,12 +66,14 @@ function copyIcon(): SVGSVGElement {
 // Вешает кнопку копирования на каждый <pre> внутри container.
 // Mermaid-блоки к этому моменту уже заменены на SVG (renderMermaid),
 // поэтому им кнопка не достаётся автоматически.
+// Кнопка кладётся в обёртку рядом с pre, а не внутрь него: pre скроллится
+// (overflow: auto), а кнопка должна оставаться в углу блока при любой прокрутке.
 export function installCopyButtons(
 	container: HTMLElement,
 	onCopy: (text: string) => void,
 ): void {
 	for (const pre of container.querySelectorAll("pre")) {
-		if (pre.querySelector(".code-copy-btn")) continue;
+		if (pre.parentElement?.classList.contains("code-block-wrap")) continue;
 		const code = pre.querySelector("code");
 		if (!code) continue;
 		const btn = document.createElement("button");
@@ -82,6 +87,12 @@ export function installCopyButtons(
 			e.stopPropagation();
 			onCopy(normalizeCodeText(code.textContent ?? ""));
 		});
-		pre.append(btn);
+		// data-src-line переносим на обёртку: синхронный скролл (collectBlocks)
+		// читает srcLine у верхнеуровневых детей .markdown-body
+		const wrapper = document.createElement("div");
+		wrapper.className = "code-block-wrap";
+		if (pre.dataset.srcLine) wrapper.dataset.srcLine = pre.dataset.srcLine;
+		pre.replaceWith(wrapper);
+		wrapper.append(pre, btn);
 	}
 }

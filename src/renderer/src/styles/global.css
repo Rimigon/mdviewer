@@ -418,21 +418,23 @@ html[data-theme="dark"] .markdown-body mark {
 }
 
 /* ---- Кнопка копирования кода ---- */
-/* Кнопка живёт внутри pre (float + sticky), поэтому для широких строк
-   остаётся у правого края видимой области при горизонтальной прокрутке.
-   Отрицательные поля компенсируют её место, не сдвигая код. */
-.markdown-body pre .code-copy-btn {
-	position: sticky;
-	float: right;
-	top: 8px;
-	right: 8px;
+/* Кнопка лежит в обёртке рядом с pre, а не внутри него: pre скроллится
+   (overflow: auto), поэтому кнопка внутри уезжала бы вместе с кодом.
+   Обёртка не скроллится — кнопка всегда в правом верхнем углу блока. */
+.code-block-wrap {
+	position: relative;
+	overflow: hidden; /* BFC: не даёт полям pre вылезти за обёртку */
+}
+.code-block-wrap .code-copy-btn {
+	position: absolute;
+	top: 10px;
+	right: 10px;
 	z-index: 1;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	width: 28px;
 	height: 28px;
-	margin: 8px -12px -36px 8px;
 	padding: 0;
 	border: 1px solid var(--border);
 	border-radius: var(--radius-sm);
@@ -445,11 +447,11 @@ html[data-theme="dark"] .markdown-body mark {
 		color var(--transition),
 		border-color var(--transition);
 }
-.markdown-body pre:hover .code-copy-btn,
-.markdown-body pre .code-copy-btn:focus-visible {
+.code-block-wrap:hover .code-copy-btn,
+.code-block-wrap .code-copy-btn:focus-visible {
 	opacity: 1;
 }
-.markdown-body pre .code-copy-btn:hover {
+.code-block-wrap .code-copy-btn:hover {
 	color: var(--text);
 	border-color: var(--accent);
 }
