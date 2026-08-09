@@ -417,6 +417,71 @@ html[data-theme="dark"] .markdown-body mark {
 	background: rgba(255, 213, 79, 0.25);
 }
 
+/* ---- Кнопка копирования кода ---- */
+/* Кнопка живёт внутри pre (float + sticky), поэтому для широких строк
+   остаётся у правого края видимой области при горизонтальной прокрутке.
+   Отрицательные поля компенсируют её место, не сдвигая код. */
+.markdown-body pre .code-copy-btn {
+	position: sticky;
+	float: right;
+	top: 8px;
+	right: 8px;
+	z-index: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	margin: 8px -12px -36px 8px;
+	padding: 0;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--bg-panel);
+	color: var(--text-muted);
+	cursor: pointer;
+	opacity: 0;
+	transition:
+		opacity var(--transition),
+		color var(--transition),
+		border-color var(--transition);
+}
+.markdown-body pre:hover .code-copy-btn,
+.markdown-body pre .code-copy-btn:focus-visible {
+	opacity: 1;
+}
+.markdown-body pre .code-copy-btn:hover {
+	color: var(--text);
+	border-color: var(--accent);
+}
+
+/* ---- Тост «Скопировано» ---- */
+.copy-toast {
+	position: fixed;
+	left: 50%;
+	bottom: 24px;
+	transform: translateX(-50%);
+	z-index: 100;
+	padding: 8px 14px;
+	border-radius: var(--radius-md);
+	background: var(--bg-panel);
+	border: 1px solid var(--border);
+	box-shadow: var(--shadow);
+	font-size: 13px;
+	color: var(--text);
+	pointer-events: none;
+	animation: copy-toast-in 0.18s ease;
+}
+@keyframes copy-toast-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 6px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
 /* ---- Масштаб текста ---- */
 /* `body` поднимает специфичность выше инжектируемого темой github-markdown-css */
 body .markdown-body {
