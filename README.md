@@ -2,6 +2,8 @@
 
 Красивый просмотрщик Markdown-файлов в стиле GitHub для Windows.
 
+![Скриншот](docs/screenshots/main.png)
+
 ## Возможности
 
 - **Рендер как на github.com** — оригинальные стили `github-markdown-css`, GFM-таблицы, task-листы, зачёркивание, автолинки
