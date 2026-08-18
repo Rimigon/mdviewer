@@ -2,7 +2,15 @@
 
 Красивый просмотрщик Markdown-файлов в стиле GitHub для Windows.
 
-![Скриншот](docs/screenshots/main.png)
+![Просмотр Markdown](docs/screenshots/md-1.png)
+
+![Оглавление и формулы](docs/screenshots/md-2.png)
+
+![Таблицы и списки](docs/screenshots/md-3.png)
+
+![Формулы](docs/screenshots/md-4.png)
+
+![Режим разделённого экрана](docs/screenshots/md-5.png)
 
 ## Возможности
 
